@@ -1,6 +1,8 @@
 package com.joesea.netty.client;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -28,17 +30,26 @@ public class NettyClient {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ChannelPipeline pipeline = ch.pipeline();
-                    pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
-                    pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
-                    pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
-                    pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+                    pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 0));
+//                    pipeline.addLast(new LengthFieldPrepender(4));
+//                    pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
+//                    pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
 
-                    pipeline.addLast("handler", new NettyClientHandler());
+                    pipeline.addLast(new NettyClientHandler());
                 }
             });
             for (int i = 0; i < 10; i++) {
                 ChannelFuture f = b.connect("127.0.0.1", 5656).sync();
-                f.channel().writeAndFlush("12345678");
+
+                byte[] msg = "12345678abc123".getBytes();
+                ByteBuf byteBuf = Unpooled.buffer();
+                byteBuf.writeInt(msg.length);
+                byteBuf.writeBytes(msg);
+
+//                System.out.println(byteBuf.readInt());
+                System.out.println(byteBuf);
+
+                f.channel().writeAndFlush(byteBuf);
                 f.channel().closeFuture().sync();
             }
 

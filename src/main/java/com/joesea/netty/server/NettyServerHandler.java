@@ -13,10 +13,24 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
             throws Exception {
-        // TODO Auto-generated method stub
-        System.out.println("server receive message :"+ msg);
-        ctx.channel().writeAndFlush("yes server already accept your message" + msg);
-        ctx.close();
+
+        ByteBuf byteBuf = (ByteBuf)msg;
+
+//        byteBuf.
+//        System.out.println(byteBuf);
+        System.out.println(byteBuf.readInt());
+
+
+//        // TODO Auto-generated method stub
+//        System.out.println("server receive message :"+ msg);
+//
+//        for (int i = 0; i < 10000; i ++) {
+//            msg += "0000000000";
+//        }
+//
+//        msg += "abcdefghijklmn";
+//        ctx.channel().writeAndFlush("yes server already accept your message" + msg);
+//        ctx.close();
     }
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

@@ -37,10 +37,11 @@ public class NettyServer {
             protected void initChannel(Channel ch) throws Exception {
                 // TODO Auto-generated method stub
                 ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
-                pipeline.addLast(new LengthFieldPrepender(4));
-                pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
-                pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
+                LengthFieldBasedFrameDecoder h;
+                pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 0));
+//                pipeline.addLast(new LengthFieldPrepender(4));
+//                pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
+//                pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
                 pipeline.addLast(new NettyServerHandler());
             }
 
@@ -58,6 +59,5 @@ public class NettyServer {
     public static void main(String[] args) throws Exception {
         System.out.println("开始启动TCP服务器...");
         NettyServer.service();
-//            HelloServer.shutdown();
     }
 }
