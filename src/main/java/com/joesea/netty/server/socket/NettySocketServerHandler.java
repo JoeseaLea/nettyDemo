@@ -1,4 +1,4 @@
-package com.joesea.netty.server;
+package com.joesea.netty.server.socket;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,17 +9,20 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * <p>@date : 2019/4/22</p>
  * <p>@description : </p>
  */
-public class NettyServerHandler extends ChannelInboundHandlerAdapter {
+public class NettySocketServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
             throws Exception {
 
         ByteBuf byteBuf = (ByteBuf)msg;
 
-//        byteBuf.
-//        System.out.println(byteBuf);
-        System.out.println(byteBuf.readInt());
+        int msgLength = byteBuf.readInt();
+        byte[] msgByte = new byte[msgLength];
+        byteBuf.readBytes(msgByte);
 
+        System.out.println(new String(msgByte));
+
+        ctx.close();
 
 //        // TODO Auto-generated method stub
 //        System.out.println("server receive message :"+ msg);

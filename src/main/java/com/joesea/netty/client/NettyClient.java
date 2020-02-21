@@ -13,6 +13,8 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * <p>@author : Joesea Lea</p>
  * <p>@date : 2019/4/22</p>
@@ -21,6 +23,7 @@ import io.netty.util.CharsetUtil;
 public class NettyClient {
 
     private void connect() {
+        long i=0;
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
@@ -38,7 +41,8 @@ public class NettyClient {
                     pipeline.addLast(new NettyClientHandler());
                 }
             });
-            for (int i = 0; i < 10; i++) {
+
+            for (; i < 4000; i++) {
                 ChannelFuture f = b.connect("127.0.0.1", 5656).sync();
 
                 byte[] msg = "12345678abc123".getBytes();
@@ -51,12 +55,12 @@ public class NettyClient {
 
                 f.channel().writeAndFlush(byteBuf);
                 f.channel().closeFuture().sync();
+                TimeUnit.MILLISECONDS.sleep(1);
             }
-
-
         } catch (Exception e) {
 
         } finally {
+            System.out.println(i);
             group.shutdownGracefully();
         }
     }

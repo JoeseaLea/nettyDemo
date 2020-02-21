@@ -1,25 +1,17 @@
-package com.joesea.netty.server;
+package com.joesea.netty.server.socket;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
-import io.netty.util.CharsetUtil;
 
 /**
  * <p>@author : Joesea Lea</p>
  * <p>@date : 2019/4/22</p>
  * <p>@description : </p>
  */
-public class NettyServer {
+public class NettySocketServer {
     private static final String IP = "127.0.0.1";
     private static final int PORT = 5656;
     private static final int BIZGROUPSIZE = Runtime.getRuntime().availableProcessors()*2;
@@ -42,7 +34,7 @@ public class NettyServer {
 //                pipeline.addLast(new LengthFieldPrepender(4));
 //                pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
 //                pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
-                pipeline.addLast(new NettyServerHandler());
+                pipeline.addLast(new NettySocketServerHandler());
             }
 
         });
@@ -58,6 +50,6 @@ public class NettyServer {
 
     public static void main(String[] args) throws Exception {
         System.out.println("开始启动TCP服务器...");
-        NettyServer.service();
+        NettySocketServer.service();
     }
 }
