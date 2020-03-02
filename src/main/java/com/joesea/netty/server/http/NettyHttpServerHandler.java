@@ -9,7 +9,8 @@ import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 
 import java.text.SimpleDateFormat;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>@author : Joesea Lea</p>
@@ -36,6 +37,9 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (msg instanceof HttpRequest) {
+            request = (HttpRequest) msg;
+        }
 //        //请求头处理
 //        if (msg instanceof HttpRequest) {
 //            request = (HttpRequest) msg;
@@ -59,7 +63,7 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 
         if(!(msg instanceof FullHttpRequest)){
             result="未知请求!";
-            send(ctx,result,HttpResponseStatus.BAD_REQUEST);
+//            send(ctx,result,HttpResponseStatus.BAD_REQUEST);
             return;
         }
         FullHttpRequest httpRequest = (FullHttpRequest) msg;
@@ -79,15 +83,18 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
                 //接受到的消息，做业务逻辑处理...
                 System.out.println("body:"+body);
                 result="GET请求";
-                send(ctx,result,HttpResponseStatus.OK);
+//                send(ctx,result,HttpResponseStatus.OK);
                 return;
             }
             //如果是POST请求
             if(HttpMethod.POST.equals(method)){
+                QueryStringDecoder queryStringDecoder = new QueryStringDecoder("/?" + body);
+                Map<String, List<String>> params = queryStringDecoder.parameters();
+
                 //接受到的消息，做业务逻辑处理...
                 System.out.println("body:"+body);
                 result="POST请求";
-                send(ctx,result,HttpResponseStatus.OK);
+//                send(ctx,result,HttpResponseStatus.OK);
                 return;
             }
 
@@ -96,7 +103,7 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
                 //接受到的消息，做业务逻辑处理...
                 System.out.println("body:"+body);
                 result="PUT请求";
-                send(ctx,result,HttpResponseStatus.OK);
+//                send(ctx,result,HttpResponseStatus.OK);
                 return;
             }
             //如果是DELETE请求
@@ -104,7 +111,7 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
                 //接受到的消息，做业务逻辑处理...
                 System.out.println("body:"+body);
                 result="DELETE请求";
-                send(ctx,result,HttpResponseStatus.OK);
+//                send(ctx,result,HttpResponseStatus.OK);
                 return;
             }
             //如果是DELETE请求
@@ -112,7 +119,7 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
                 //接受到的消息，做业务逻辑处理...
                 System.out.println("body:"+body);
                 result="OPTIONS请求";
-                send(ctx,result,HttpResponseStatus.OK);
+//                send(ctx,result,HttpResponseStatus.OK);
                 return;
             }
         }catch(Exception e){
@@ -126,7 +133,8 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        super.channelReadComplete(ctx);
+        result = "hello world，你好，世界";
+        send(ctx,result,HttpResponseStatus.OK);
     }
 
     @Override
@@ -141,9 +149,39 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
      * @param status 状态
      */
     private void send(ChannelHandlerContext ctx, String context, HttpResponseStatus status) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, Unpooled.copiedBuffer(context, CharsetUtil.UTF_8));
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+
+        byte[] msgByte = context.getBytes();
+
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, Unpooled.wrappedBuffer(msgByte));
+
+
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
+//        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json;charset=UTF-8");
+        response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+        //返回值是json
+
+       
+       //允许跨域访问
+       response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
+       response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Origin, X-Requested-With, Content-Type, Accept");
+       response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"GET, POST, PUT,DELETE");
+       
+       response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+//       if (HttpHeaders.isKeepAlive(request)) {
+//           response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderNames.Values.KEEP_ALIVE);
+//       }
+        boolean keepAlive = HttpUtil.isKeepAlive(request);
+        if (!keepAlive) {
+            ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+        } else {
+            response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderNames.KEEP_ALIVE);
+            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+            System.out.println("-----end-----");
+        }
+//        ctx.flush();
+
+//        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
+//        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     /**

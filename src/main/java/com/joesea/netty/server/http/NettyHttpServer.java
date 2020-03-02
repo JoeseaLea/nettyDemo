@@ -48,7 +48,9 @@ public class NettyHttpServer {
 //                        pipeline.addLast("encoder",new HttpResponseEncoder());
 //                        pipeline.addLast("decoder",new HttpRequestDecoder());
                         pipeline.addLast(new HttpObjectAggregator(10*1024*1024));//把单个http请求转为FullHttpReuest或FullHttpResponse
+                        pipeline.addLast(new HttpServerExpectContinueHandler());
                         pipeline.addLast(new NettyHttpServerHandler());// 服务端业务逻辑
+
                     }
                 });
 
