@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Feelview</title>
+    
+<body>
+<script src='jquery-3.4.1.min.js'></script>
+
+<script>
+    function hello() {
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8001",
+            data: '{"REQ_MSG":{"HEAD":{"DEST_BRANCH_NO":"","FILE_PATH":"","MAC":"","RESULT_STATUS":"","TRAN_TIMESTAMP_ORG":"101423","RESERVE3":"","RESERVE2":"","SEQ_NO_ORG":"025049","RESERVE1":"","TRAN_DATE_ORG":"20190919","SEQ_NO_COMMON":"","RESERVE4":"","SOURCE_BRANCH_NO":"","RESULT":{"MSG":"success","CODE":"0000"},"BRANCH_ID":"010001","TERM_ID":"00000021","TRAN_CODE":"010002"},"BODY":{"SERVER_TIME":"","MAC_KEY":"32323232323232323232323232323232","MAC_KCV":"222222","USER_ID":"","SEQ_NO_LATEST":"000189","FLAG":"SU","PIN_KEY":"31313131313131313131313131313131","BRANCH_ID":"010001","PIN_KCV":"111111"}}}',
+            dataType: "json",
+            contentType:"application/x-www-form-urlencoded;charset=utf-8",
+            success: function(msg){
+                alert( "Data Saved: " + JSON.stringify(msg) );
+            }
+        });
+    }
+    function test() {
+        var param = '{"name":"张三","data":{"sex":1, "address":"广州", "datadata":{"param[name":"val"}}}';
+        
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8001",
+            data:param,
+            success: function (result) {
+               alert(JSON.stringify(result));
+            },
+           error: function (data) {
+               alert(JSON.stringify(data));
+           }
+        });
+    }
+    test();
+</script>
+</body>
+</html>
+

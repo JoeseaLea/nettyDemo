@@ -7,8 +7,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -18,15 +19,9 @@ import java.util.Map;
  * <p>@description : </p>
  */
 public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
-//    private ServerBean serverBean;
-//    private ConcurrentHashMap<String, MapData> channelMap;
+    private final Logger logger = LoggerFactory.getLogger(NettyHttpServerHandler.class);
+
     private HttpRequest request = null;
-    private int contentLen = 0;
-    private ByteBuf msgBuf = null;
-    private String uuid = null;
-//    public ChannelBuffer bufferOK = null;
-//    public ChannelBuffer bufferError = null;
-    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String result="";
 
@@ -58,12 +53,12 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 //            ByteBuf buf = content.content();
 ////            msgBuf.writeBytes(buf);
 ////            buf.release();
-//            System.out.println(buf.toString(CharsetUtil.UTF_8));
+//            logger.info(buf.toString(CharsetUtil.UTF_8));
 //        }
 
         if(!(msg instanceof FullHttpRequest)){
             result="未知请求!";
-//            send(ctx,result,HttpResponseStatus.BAD_REQUEST);
+            send(ctx,result,HttpResponseStatus.BAD_REQUEST);
             return;
         }
         FullHttpRequest httpRequest = (FullHttpRequest) msg;
@@ -77,22 +72,24 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 //                send(ctx,result,HttpResponseStatus.BAD_REQUEST);
 //                return;
 //            }
-            System.out.println("接收到:"+method+" 请求");
+            logger.info("接收到:"+method+" 请求");
             //如果是GET请求
             if(HttpMethod.GET.equals(method)){
+                body = httpRequest.uri();
                 //接受到的消息，做业务逻辑处理...
-                System.out.println("body:"+body);
+                logger.info("body:"+body);
                 result="GET请求";
 //                send(ctx,result,HttpResponseStatus.OK);
                 return;
             }
             //如果是POST请求
             if(HttpMethod.POST.equals(method)){
+//                request;
                 QueryStringDecoder queryStringDecoder = new QueryStringDecoder("/?" + body);
                 Map<String, List<String>> params = queryStringDecoder.parameters();
 
                 //接受到的消息，做业务逻辑处理...
-                System.out.println("body:"+body);
+                logger.info("body:"+body);
                 result="POST请求";
 //                send(ctx,result,HttpResponseStatus.OK);
                 return;
@@ -101,7 +98,7 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
             //如果是PUT请求
             if(HttpMethod.PUT.equals(method)){
                 //接受到的消息，做业务逻辑处理...
-                System.out.println("body:"+body);
+                logger.info("body:"+body);
                 result="PUT请求";
 //                send(ctx,result,HttpResponseStatus.OK);
                 return;
@@ -109,7 +106,7 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
             //如果是DELETE请求
             if(HttpMethod.DELETE.equals(method)){
                 //接受到的消息，做业务逻辑处理...
-                System.out.println("body:"+body);
+                logger.info("body:"+body);
                 result="DELETE请求";
 //                send(ctx,result,HttpResponseStatus.OK);
                 return;
@@ -117,13 +114,13 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
             //如果是DELETE请求
             if(HttpMethod.OPTIONS.equals(method)){
                 //接受到的消息，做业务逻辑处理...
-                System.out.println("body:"+body);
+                logger.info("body:"+body);
                 result="OPTIONS请求";
 //                send(ctx,result,HttpResponseStatus.OK);
                 return;
             }
         }catch(Exception e){
-            System.out.println("处理请求失败!");
+            logger.info("处理请求失败!");
             e.printStackTrace();
         }finally{
             //释放请求
@@ -176,7 +173,7 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
         } else {
             response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderNames.KEEP_ALIVE);
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-            System.out.println("-----end-----");
+            logger.info("-----end-----");
         }
 //        ctx.flush();
 
